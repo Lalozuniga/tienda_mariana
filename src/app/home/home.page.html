@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      Birdbrain
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,12 +9,34 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">Directorio</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <ion-toolbar>
+  <ion-searchbar
+    placeholder="Buscar nombre, teléfono, dirección..."
+    [debounce]="150"
+    (ionInput)="busqueda.set($any($event).detail.value ?? '')"
+  />
+</ion-toolbar>
+
+  @if (svc.cargando()) {
+    <ion-spinner />
+  } @else {
+    <ion-list>
+      @for (c of visibles(); track c.id) {
+        <ion-item>
+          <ion-label>
+            <h2>{{ c.nombre }}</h2>
+            <p>{{ c.telefono }}</p>
+            <p>{{ c.direccion }}</p>
+            <p>{{ c.referencia }}</p>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+
 </ion-content>
