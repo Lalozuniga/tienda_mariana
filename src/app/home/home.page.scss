@@ -25,3 +25,73 @@
 #container a {
   text-decoration: none;
 }
+.barra {
+  position: sticky;   // se pega arriba mientras haces scroll
+  top: 0;
+  z-index: 10;
+  background: var(--ion-background-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease;
+
+  &.oculta {
+    transform: translateY(-100%);  // sube y desaparece
+  }
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 12px 90px; // espacio abajo para que el botón + no tape la última
+}
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--ion-card-background, #fff);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.avatar {
+  flex: 0 0 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ion-color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.datos {
+  flex: 1;
+  min-width: 0;
+
+  h2 { margin: 0 0 2px; font-size: 1rem; font-weight: 600; }
+  p  { margin: 0; font-size: 0.85rem; color: var(--ion-color-medium); }
+  .tel { color: var(--ion-text-color); }
+  .ref { font-style: italic; }
+}
+
+.llamar {
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ion-color-success);
+  color: #fff;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.vacio {
+  text-align: center;
+  color: var(--ion-color-medium);
+  padding: 32px;
+}

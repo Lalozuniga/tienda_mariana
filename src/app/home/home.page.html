@@ -36,18 +36,24 @@
   @if (svc.cargando()) {
     <ion-spinner />
   } @else {
-    <ion-list>
-      @for (c of visibles(); track c.id) {
-        <ion-item button (click)="editar(c)">
-          <ion-label>
-            <h2>{{ c.nombre }}</h2>
-            <p>{{ c.telefono }}</p>
-            <p>{{ c.direccion }}</p>
-            <p>{{ c.referencia }}</p>
-          </ion-label>
-        </ion-item>
-      }
-    </ion-list>
+    <div class="lista">
+  @for (c of visibles(); track c.id) {
+    <div class="tarjeta" (click)="editar(c)">
+      <div class="avatar">{{ c.nombre.charAt(0).toUpperCase() }}</div>
+      <div class="datos">
+        <h2>{{ c.nombre }}</h2>
+        <p class="tel">{{ c.telefono }}</p>
+        @if (c.direccion) { <p>{{ c.direccion }}</p> }
+        @if (c.referencia) { <p class="ref">{{ c.referencia }}</p> }
+      </div>
+      <a class="llamar" [href]="'tel:' + c.telefono" (click)="$event.stopPropagation()">
+        <ion-icon name="call" />
+      </a>
+    </div>
+  } @empty {
+    <p class="vacio">Sin resultados</p>
+  }
+</div>
   }
 
 <ion-fab slot="fixed" vertical="bottom" horizontal="end">
