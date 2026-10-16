@@ -53,10 +53,11 @@ guardarNuevo(nombre: string, telefono: string, direccion = '', referencia = ''):
   const telefonoLimpio = telefono.replace(/\D/g, '');
 
   if (!nombre) return 'El nombre es obligatorio';
-  if (!telefonoLimpio) return 'El teléfono es obligatorio';
 
-  const repetido = this.contactos().find((c) => c.telefonoLimpio === telefonoLimpio);
-  if (repetido) return `Ese teléfono ya está registrado (${repetido.nombre})`;
+  const repetido = telefonoLimpio
+    ? this.contactos().find((c) => c.telefonoLimpio === telefonoLimpio)
+    : undefined;
+  if (repetido) return `Ese teléfono ya está registrado (${repetido.nombre})`;   // ← esta falta
 
   addDoc(this.col, {
     nombre,
@@ -75,13 +76,11 @@ editar(id: string, nombre: string, telefono: string, direccion = '', referencia 
   const telefonoLimpio = telefono.replace(/\D/g, '');
 
   if (!nombre) return 'El nombre es obligatorio';
-  if (!telefonoLimpio) return 'El teléfono es obligatorio';
 
-  const repetido = this.contactos().find(
-    (c) => c.telefonoLimpio === telefonoLimpio && c.id !== id
-  );
-  if (repetido) return `Ese teléfono ya está registrado (${repetido.nombre})`;
-
+  const repetido = telefonoLimpio
+  ? this.contactos().find((c) => c.telefonoLimpio === telefonoLimpio && c.id !== id)
+  : undefined;
+if (repetido) return `Ese teléfono ya está registrado (${repetido.nombre})`;
   updateDoc(doc(this.db, 'contactos', id), {
     nombre,
     telefono: telefono.trim(),

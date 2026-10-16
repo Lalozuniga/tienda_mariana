@@ -3,7 +3,8 @@ import { Contacto, Firebase } from '../services/firebase';
 import { AlertController, IonFab, IonFabButton, IonSearchbar } from '@ionic/angular/lazy';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
-import { add } from 'ionicons/icons';
+import { add, print } from 'ionicons/icons';
+import { crearTicket, compartirTicket, ENVIO_POR_DEFECTO } from '../services/ticket';
 
 //normaliza los acentos de las palabras
 const norm = (s: string) =>
@@ -30,6 +31,17 @@ export class HomePage {
   protected editandoId = signal<string | null>(null);
   private alertCtrl = inject(AlertController);
 
+  protected modalTicket = signal(false);
+protected errorTicket = signal('');
+protected contactoTicket: Contacto | null = null;
+protected pedido: number | null = null;
+protected envio: number = ENVIO_POR_DEFECTO;
+
+// El total se calcula solo mientras escribes
+protected get totalTicket(): number {
+  return (parseFloat(String(this.pedido ?? '')) || 0) + (parseFloat(String(this.envio ?? '')) || 0);
+}
+
 protected visibles = computed(() => {
   const q = norm(this.busqueda().trim());
   let lista = this.svc.contactos();
@@ -51,7 +63,7 @@ protected visibles = computed(() => {
 });
 
   constructor() {
-  addIcons({ add });
+  addIcons({ add, print });
   }
 
   protected nuevo() {
@@ -125,5 +137,46 @@ protected alScroll(ev: CustomEvent) {
   else if (delta < -4) this.barraOculta.set(false); // subiendo: mostrar
 
   this.ultimoScroll = y;
+}
+
+// Se ejecuta al tocar el botón azul de la tarjeta: solo abre la ventanita
+protected imprimir(c: Contacto) {
+  this.contactoTicket = c;
+  this.pedido = null;                  // vacío: lo escribe el usuario
+  this.envio = ENVIO_POR_DEFECTO;      // 35 por defecto, editable
+  this.errorTicket.set('');
+  this.modalTicket.set(true);
+}
+
+protected cerrarTicket() {
+  this.modalTicket.set(false);
+}
+
+// Se ejecuta al tocar "Imprimir" dentro de la ventanita
+protected async confirmarImpresion() {
+  const c = this.contactoTicket;
+  if (!c) return;
+
+  const pedido = parseFloat(String(this.pedido ?? ''));
+  const envio = parseFloat(String(this.envio ?? ''));
+
+  if (isNaN(pedido) || pedido < 0) {
+    this.errorTicket.set('Escribe el costo del pedido');
+    return;
+  }
+  if (isNaN(envio) || envio < 0) {
+    this.errorTicket.set('El envío no es válido');
+    return;
+  }
+
+  const canvas = crearTicket({
+    nombre: c.nombre,
+    lugar: c.direccion,
+    telefono: c.telefono,
+    pedido,
+    envio,
+  });
+  this.cerrarTicket();
+  await compartirTicket(canvas);
 }
 }
