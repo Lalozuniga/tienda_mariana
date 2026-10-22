@@ -115,9 +115,20 @@
       <h2>{{ contactoTicket?.nombre }}</h2>
 
       <ion-item>
-        <ion-input label="Costo del pedido ($) *" labelPlacement="stacked"
+        <ion-input label="Costo del pedido ($)" labelPlacement="stacked"
           type="number" inputmode="decimal" [(ngModel)]="pedido" />
       </ion-item>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px">
+        <ion-button size="small" [fill]="!envio ? 'solid' : 'outline'" (click)="envio = null">
+          Sin envío
+        </ion-button>
+        @for (n of enviosRecientes(); track n) {
+          <ion-button size="small" [fill]="envio === n ? 'solid' : 'outline'" (click)="envio = n">
+            ${{ n }}
+          </ion-button>
+        }
+      </div>
       <ion-item>
         <ion-input label="Envío ($)" labelPlacement="stacked"
           type="number" inputmode="decimal" [(ngModel)]="envio" />
@@ -129,7 +140,10 @@
         <p style="color: var(--ion-color-danger)">{{ errorTicket() }}</p>
       }
 
-      <ion-button expand="block" (click)="confirmarImpresion()">Imprimir</ion-button>
+      <ion-button expand="block" (click)="imprimirCompartir()">Imprimir (Compartir)</ion-button>
+      <ion-button expand="block" fill="outline" (click)="imprimirBluetooth()">
+        Bluetooth directo (experimental)
+      </ion-button>
     </ion-content>
   </ng-template>
 </ion-modal>

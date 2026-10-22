@@ -4,7 +4,7 @@ import { AlertController, IonFab, IonFabButton, IonSearchbar } from '@ionic/angu
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
 import { add, print } from 'ionicons/icons';
-import { crearTicket, compartirTicket, ENVIO_POR_DEFECTO } from '../services/ticket';
+import { crearTicket, compartirTicket, ENVIO_POR_DEFECTO, cargarEnvios, recordarEnvio } from '../services/ticket';
 
 //normaliza los acentos de las palabras
 const norm = (s: string) =>
@@ -31,11 +31,14 @@ export class HomePage {
   protected editandoId = signal<string | null>(null);
   private alertCtrl = inject(AlertController);
 
-  protected modalTicket = signal(false);
+//mas variables 
+protected modalTicket = signal(false);
 protected errorTicket = signal('');
 protected contactoTicket: Contacto | null = null;
 protected pedido: number | null = null;
-protected envio: number = ENVIO_POR_DEFECTO;
+protected envio: number | null = ENVIO_POR_DEFECTO;
+protected enviosRecientes = signal<number[]>(cargarEnvios());
+
 
 // El total se calcula solo mientras escribes
 protected get totalTicket(): number {
@@ -64,6 +67,7 @@ protected visibles = computed(() => {
 
   constructor() {
   addIcons({ add, print });
+  
   }
 
   protected nuevo() {
@@ -148,9 +152,7 @@ protected imprimir(c: Contacto) {
   this.modalTicket.set(true);
 }
 
-protected cerrarTicket() {
-  this.modalTicket.set(false);
-}
+
 
 // Se ejecuta al tocar "Imprimir" dentro de la ventanita
 protected async confirmarImpresion() {
@@ -178,5 +180,63 @@ protected async confirmarImpresion() {
   });
   this.cerrarTicket();
   await compartirTicket(canvas);
+}
+
+
+
+protected cerrarTicket() {
+  this.modalTicket.set(false);
+}
+
+private prepararTicket(): HTMLCanvasElement | null {
+  const c = this.contactoTicket;
+  if (!c) return null;
+
+  const leer = (v: unknown): number | null => {
+    const t = String(v ?? '').trim();
+    if (t === '') return null;
+    const n = parseFloat(t);
+    return isNaN(n) || n < 0 ? NaN : n;
+  };
+  const pedido = leer(this.pedido);
+  const envio = leer(this.envio);
+
+  if (Number.isNaN(pedido) || Number.isNaN(envio)) {
+    this.errorTicket.set('Revisa los montos: deben ser números positivos');
+    return null;
+  }
+
+  this.enviosRecientes.set(recordarEnvio(envio));
+  return crearTicket({
+    nombre: c.nombre,
+    lugar: c.direccion,
+    telefono: c.telefono,
+    pedido,
+    envio,
+  });
+}
+
+protected async imprimirCompartir() {
+  const canvas = this.prepararTicket();
+  if (!canvas) return;
+  this.cerrarTicket();
+  await compartirTicket(canvas);
+}
+
+protected async imprimirBluetooth() {
+  const canvas = this.prepararTicket();
+  if (!canvas) return;
+  try {
+    const { CatPrinter } = await import('@opuu/cat-printer');
+    const printer = new CatPrinter({ debug: true });
+    await printer.connect();
+    await printer.printImage(canvas.toDataURL('image/png'), { dither: 'threshold' });
+    await printer.feed(100);
+    await printer.disconnect();
+    this.cerrarTicket();
+  } catch (e) {
+    console.error('Bluetooth:', e);
+    this.errorTicket.set('Bluetooth: ' + (e instanceof Error ? e.message : String(e)));
+  }
 }
 }
