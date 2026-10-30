@@ -175,6 +175,7 @@ protected async confirmarImpresion() {
     nombre: c.nombre,
     lugar: c.direccion,
     telefono: c.telefono,
+    referencia: c.referencia,
     pedido,
     envio,
   });
@@ -211,6 +212,7 @@ private prepararTicket(): HTMLCanvasElement | null {
     nombre: c.nombre,
     lugar: c.direccion,
     telefono: c.telefono,
+    referencia: c.referencia,
     pedido,
     envio,
   });

@@ -4,6 +4,7 @@ export interface DatosTicket {
   nombre: string;
   lugar: string;
   telefono: string;
+  referencia: string;
   pedido: number | null;
   envio: number | null;
 }
@@ -46,6 +47,9 @@ export function crearTicket(d: DatosTicket): HTMLCanvasElement {
   if (d.telefono.trim()) {
     bloques.push({ texto: `Tel: ${d.telefono.trim()}`, px: 28, negrita: false });
   }
+  if (d.referencia?.trim()) {
+  bloques.push({ texto: `Ref: ${d.referencia.trim()}`, px: 28, negrita: false });
+}
 
   const montos: Bloque[] = [];
   if (d.pedido) montos.push({ texto: `Pedido: ${dinero(d.pedido)}`, px: 28, negrita: false });
